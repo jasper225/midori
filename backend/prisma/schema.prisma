@@ -1,8 +1,3 @@
-// This is your Prisma schema file,
-// learn more about it in the docs: https://pris.ly/d/prisma-schema
-
-// Get a free hosted Postgres database in seconds: `npx create-db`
-
 generator client {
   provider = "prisma-client"
   output   = "../generated/prisma"
@@ -19,6 +14,8 @@ model User {
   dailyLimitMin   Int   @default(30)
   createdAt   DateTime    @default(now())
   sessions    ScrollSession[]
+  sites     TrackedSites[]
+  dailyUsage    DailyUsage[]
 }
 
 model ScrollSession {
@@ -32,4 +29,26 @@ model ScrollSession {
   note    String?
 
   @@index([userId, startedAt])
+}
+
+model TrackedSites {
+   id    String    @id @default(cuid())
+   userId    String
+   user    User    @relation(fields: [userId], references: [id])
+   domain   String
+   dailyLimitMin    Int?
+
+   @@unique([userId, domain]) 
+}
+
+model DailyUsage {
+   id    String    @id @default(cuid())
+   userId    String
+   user    User    @relation(fields: [userId], references: [id])
+   domain   String
+   date   DateTime    @db.date
+   seconds    Int   @default(0)
+   scrollPx   Int   @default(0)
+
+   @@unique([userId, domain, date])
 }
