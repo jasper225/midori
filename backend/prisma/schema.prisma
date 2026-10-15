@@ -46,7 +46,7 @@ model DailyUsage {
    userId    String
    user    User    @relation(fields: [userId], references: [id])
    domain   String
-   date   DateTime    @db.date
+   date   DateTime    @db.Date
    seconds    Int   @default(0)
    scrollPx   Int   @default(0)
 
