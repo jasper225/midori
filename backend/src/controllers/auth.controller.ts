@@ -94,7 +94,7 @@ export const logout = async (_req: Request, res: Response) => {
 
 export const getProfile = async (req: Request, res: Response) => {
   const id = req.params.id;
-  if (typeof id !== "string") return res.status(404).json({ message: "Invalid user ID"})
+  if (typeof id !== "string") return res.status(404).json({ message: "Invalid user ID"});
     try {
         const user = await prisma.user.findUnique({ 
             where: { id },
