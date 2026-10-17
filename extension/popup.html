@@ -1,0 +1,25 @@
+<!doctype html>
+<html>
+<head>
+  <meta charset="utf-8" />
+  <style>
+    body { width: 280px; font: 14px system-ui; padding: 12px; }
+    input, button { width: 100%; margin: 4px 0; padding: 6px; box-sizing: border-box; }
+    #err { color: #b00020; }
+  </style>
+</head>
+<body>
+  <div id="login">
+    <input id="email" type="email" placeholder="Email" />
+    <input id="password" type="password" placeholder="Password" />
+    <button id="loginBtn">Log in</button>
+    <p id="err"></p>
+  </div>
+  <div id="main" hidden>
+    <p id="who"></p>
+    <p id="total"></p>
+    <button id="logoutBtn">Log out</button>
+  </div>
+  <script src="popup.js"></script>
+</body>
+</html>

@@ -4,7 +4,8 @@ import { requireAuth } from "../middleware/requireAuth.js";
 
 const router = Router();
 
-router.post("/", requireAuth, startSession);
-router.post("/:id/end", requireAuth, endSession);
+router.use(requireAuth);
+router.post("/", startSession);
+router.post("/:id/end", endSession);
 
 export default router;

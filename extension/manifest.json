@@ -1,0 +1,10 @@
+{
+  "manifest_version": 3,
+  "name": "midori",
+  "version": "0.1.0",
+  "description": "for stopping your b ahh doomscrolling",
+  "permissions": ["storage", "alarms", "idle", "tabs"],
+  "host_permissions": ["http://localhost:4000/*"],
+  "background": { "service_worker": "background.js" },
+  "action": { "default_popup": "popup.html" }
+}

@@ -15,7 +15,6 @@ export const startSession = async (req: Request, res: Response) => {
   const parsed = startSchema.safeParse(req.body);
   if (!parsed.success) return res.status(400).json({ error: parsed.error.flatten().fieldErrors });
   
-
   try {
       const session = await prisma.scrollSession.create({
         data: {

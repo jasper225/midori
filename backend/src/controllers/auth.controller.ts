@@ -58,15 +58,41 @@ export const login = async (req: Request, res: Response) => {
   try {
     const user = await prisma.user.findUnique({ where: { email } });
     const match = user && await bcrypt.compare(password, user.passwordHash);
-    if (!user || !match) {
-      return res.status(401).json({ error: "Invalid credentials" });
-    }
-
+    if (!user || !match) return res.status(401).json({ error: "Invalid credentials" });
     
     const token = jwt.sign({ sub: user.id }, JWT_SECRET, { expiresIn: "7d" });
     res.cookie("token", token, cookieOptions);
-    
     return res.status(200).json({
+      user: {
+        id: user.id,
+        email: user.email,
+        dailyLimitMin: user.dailyLimitMin,
+        createdAt: user.createdAt,
+      },
+    });
+
+
+  } catch (err) {
+    console.error(err);
+    return res.status(500).json({ error: "Server error" });
+  }
+};
+
+export const extensionLogin = async (req: Request, res: Response) => {
+  const parsed = loginSchema.safeParse(req.body);
+  if (!parsed.success) {
+    return res.status(400).json({ error: parsed.error.flatten().fieldErrors });
+  }
+  const { email, password } = parsed.data;
+
+  try {
+    const user = await prisma.user.findUnique({ where: { email } });
+    const match = user && await bcrypt.compare(password, user.passwordHash);
+    if (!user || !match) return res.status(401).json({ error: "Invalid credentials" });
+    
+    const token = jwt.sign({ sub: user.id }, JWT_SECRET, { expiresIn: "30d" });
+    return res.status(200).json({
+      token,
       user: {
         id: user.id,
         email: user.email,
