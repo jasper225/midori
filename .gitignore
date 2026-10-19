@@ -3,4 +3,5 @@ node_modules/
 /backend/coverage/
 /backend/dist/
 /backend/build/
+/scratch
 *.tsbuildinfo

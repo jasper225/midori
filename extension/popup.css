@@ -1,0 +1,14 @@
+body {
+    width: 280px;
+    font: 14px system-ui; 
+    padding: 12px;
+}
+
+input, button {
+    width: 100%; 
+    margin: 4px 0; 
+    padding: 6px; 
+    box-sizing: border-box;
+}
+
+#err { color: #b00020; }

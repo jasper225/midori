@@ -22,7 +22,7 @@ const domainSchema = z
 
 const siteSchema = z.object({
   domain: domainSchema,
-  limitMin: z.number().int().min(1).max(1440).optional(),
+  dailyLimitMin: z.number().int().min(1).max(1440).optional(),
 });
 
 export const addSite = async (req: Request, res: Response) => {
@@ -36,9 +36,11 @@ export const addSite = async (req: Request, res: Response) => {
       data: {
         userId: req.userId!,
         domain: parsed.data.domain,
-        limitMin: parsed.data.limitMin, // undefined is ignored by Prisma
+        ...(parsed.data.dailyLimitMin !== undefined && {
+          dailyLimitMin: parsed.data.dailyLimitMin,
+        }),
       },
-      select: { id: true, domain: true, limitMin: true },
+      select: { id: true, domain: true, dailyLimitMin: true },
     });
     res.status(201).json({ site });
   } catch (err: any) {
@@ -54,7 +56,7 @@ export const getSites = async (req: Request, res: Response) => {
   try {
     const sites = await prisma.trackedSites.findMany({
       where: { userId: req.userId! },
-      select: { id: true, domain: true, limitMin: true },
+      select: { id: true, domain: true, dailyLimitMin: true },
       orderBy: { domain: "asc" },
     });
     res.json({ sites });
