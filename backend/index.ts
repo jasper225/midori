@@ -20,4 +20,4 @@ app.use("/usage", usageRoutes);
 
 app.get("/health", (_, res) => res.json({ ok: true }));
 
-app.listen(4000, () => console.log("API on :4000"));
+app.listen(4000, () => console.log("Server on localhost:4000"));

@@ -1,4 +1,4 @@
-const API = "http://localhost:4000";
+const server = "http://localhost:4000";
 
 // Run storage-touching work one job at a time so events can't race each other.
 let queue = Promise.resolve();
@@ -51,7 +51,7 @@ async function syncNow() {
 
   try {
     // Refresh the tracked-site list
-    const sitesRes = await fetch(`${API}/sites`, { headers });
+    const sitesRes = await fetch(`${server}/sites`, { headers });
     if (sitesRes.status === 401) return chrome.storage.local.remove(["token", "email"]);
     if (sitesRes.ok) {
       const { sites } = await sitesRes.json();
@@ -67,7 +67,7 @@ async function syncNow() {
       }));
       if (!entries.length) { delete pending[date]; continue; }
 
-      const res = await fetch(`${API}/usage`, {
+      const res = await fetch(`${server}/usage`, {
         method: "POST",
         headers,
         body: JSON.stringify({ date, entries }),

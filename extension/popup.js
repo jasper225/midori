@@ -1,4 +1,4 @@
-const API = "http://localhost:4000";
+const server = "http://localhost:4000";
 const $ = (id) => document.getElementById(id);
 
 const pad = (n) => String(n).padStart(2, "0");
@@ -15,7 +15,7 @@ async function render() {
 
   $("who").textContent = email;
   try {
-    const res = await fetch(`${API}/usage/today?date=${localDate()}`, {
+    const res = await fetch(`${server}/usage/today?date=${localDate()}`, {
       headers: { Authorization: `Bearer ${token}` },
     });
     if (res.status === 401) {
@@ -32,7 +32,7 @@ async function render() {
 $("loginBtn").addEventListener("click", async () => {
   $("err").textContent = "";
   try {
-    const res = await fetch(`${API}/auth/extension-login`, {
+    const res = await fetch(`${server}/auth/extension-login`, {
       method: "POST",
       headers: { "Content-Type": "application/json" },
       body: JSON.stringify({ email: $("email").value, password: $("password").value }),
