@@ -45,7 +45,7 @@ async function refreshNow() {
 }
 
 async function syncNow() {
-  const { token, pending = {} } = await chrome.storage.local.get(["token", "pending"]);
+  const { token, pending = {}, pendingScroll = {} } = await chrome.storage.local.get(["token", "pending", "pendingScroll"]);
   if (!token) return;
   const headers = { "Content-Type": "application/json", Authorization: `Bearer ${token}` };
 
@@ -59,22 +59,34 @@ async function syncNow() {
     }
 
     // Send accumulated usage, one request per date
-    for (const [date, byDomain] of Object.entries(pending)) {
-      const entries = Object.entries(byDomain).map(([domain, seconds]) => ({
+    const dates = new Set([...Object.keys(pending), ...Object.keys(pendingScroll)]);
+    
+    for (const date of dates) {
+      const secs = pending[date] ?? {};
+      const px = pendingScroll[date] ?? {};
+      const domains = new Set([...Object.keys(secs), ...Object.keys(px)]);
+      
+      const entries = [...domains].map((domain) => ({
         domain,
-        seconds,
-        scrollPx: 0, // content script fills this in later
+        seconds: secs[domain] ?? 0,
+        scrollPx: px[domain] ?? 0,
       }));
-      if (!entries.length) { delete pending[date]; continue; }
-
+      if (!entries.length) { 
+        delete pending[date];
+        delete pendingScroll[date]; 
+        continue; 
+      }
       const res = await fetch(`${server}/usage`, {
         method: "POST",
         headers,
         body: JSON.stringify({ date, entries }),
       });
-      if (res.ok) delete pending[date];
+      if (res.ok) { 
+        delete pending[date];
+        delete pendingScroll[date];
+      }
     }
-    await chrome.storage.local.set({ pending });
+    await chrome.storage.local.set({ pending, pendingScroll });
   } catch (err) {
     console.warn("Sync failed, will retry:", err.message); // offline: keep pending
   }
@@ -100,4 +112,20 @@ chrome.alarms.onAlarm.addListener((a) => a.name === "sync" && fullSync());
 // Popup asks for an immediate sync after login
 chrome.runtime.onMessage.addListener((msg) => {
   if (msg.type === "sync") fullSync();
+
+  if (msg.type === "scroll") {
+    serial(async () => {
+      const { sites = [], pendingScroll = {} } =
+        await chrome.storage.local.get(["sites", "pendingScroll"]);
+
+      const host = msg.host.replace(/^www\./, "");
+      const domain = sites.find((d) => host === d || host.endsWith("." + d));
+      if (!domain) return; // not a tracked site, discard
+
+      const date = localDate();
+      pendingScroll[date] ??= {};
+      pendingScroll[date][domain] = (pendingScroll[date][domain] ?? 0) + msg.px;
+      await chrome.storage.local.set({ pendingScroll });
+    });
+  }
 });

@@ -11,4 +11,8 @@ input, button {
     box-sizing: border-box;
 }
 
+h1 {
+    color: #024b3f;
+    align-items: center;
+}
 #err { color: #b00020; }

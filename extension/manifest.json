@@ -1,6 +1,13 @@
 {
   "manifest_version": 3,
   "name": "midori",
+  "content_scripts": [
+    {
+    "matches": ["http://*/*", "https://*/*"],
+    "js": ["content.js"],
+    "run_at": "document_idle"
+    }
+  ],
   "version": "0.1.0",
   "description": "for stopping your b ahh doomscrolling",
   "permissions": ["storage", "alarms", "idle", "tabs"],

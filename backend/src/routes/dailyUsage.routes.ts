@@ -6,6 +6,6 @@ const router = Router();
 
 router.use(requireAuth);
 router.post("/", logUsage);
-router.post("/today", todayUsage);
+router.get("/today", todayUsage);
 
 export default router;
