@@ -42,7 +42,10 @@ $("loginBtn").addEventListener("click", async () => {
       $("err").textContent = typeof data.error === "string" ? data.error : "Check your details.";
       return;
     }
-    await chrome.storage.local.set({ token: data.token, email: data.user.email });
+    await chrome.storage.local.set({ 
+      token: data.token, 
+      email: data.user.email,
+      userLimitMin: data.user.dailyLimitMin, });
     chrome.runtime.sendMessage({ type: "sync" });
     render();
   } catch {
