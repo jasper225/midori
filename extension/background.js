@@ -9,14 +9,14 @@ async function getStatus(host) {
     totals = {},
     current,
     nudged = {},
-  } = await chrome.storage.local.get(
+  } = await chrome.storage.local.get([
     "sites",
     "siteLimits",
     "userLimitMin",
     "totals",
     "current",
     "nudged",
-  );
+  ]);
 
   const h = host.replace(/^www\./, "");
   const domain = sites.find((d) => h === d || h.endsWith("." + d));
@@ -83,7 +83,11 @@ async function refreshNow() {
     if (secs > 0 && secs < 3600) {
       pending[current.date] ??= {};
       pending[current.date][current.domain] =
-        (pending[current.date][current.domain] ?? 0) + secs;
+      (pending[current.date][current.domain] ?? 0) + secs;
+
+      totals[current.date] ??= {};
+      totals[current.date][current.domain] =
+      (totals[current.date][current.domain] ?? 0) + secs;
     }
   }
   for (const d of Object.keys(totals)) if (d !== localDate()) delete totals[d];
