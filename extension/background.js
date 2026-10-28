@@ -1,5 +1,5 @@
 const server = "http://localhost:4000";
-const NUDGE_EVERY = 15 * 60;
+const NUDGE_EVERY = 60;
 
 async function getStatus(host) {
   const {
