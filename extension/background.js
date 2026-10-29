@@ -9,6 +9,7 @@ async function getStatus(host) {
     totals = {},
     current,
     nudged = {},
+    snoozedUntil = {},
   } = await chrome.storage.local.get([
     "sites",
     "siteLimits",
@@ -16,6 +17,7 @@ async function getStatus(host) {
     "totals",
     "current",
     "nudged",
+    "snoozedUntil",
   ]);
 
   const h = host.replace(/^www\./, "");
@@ -31,13 +33,18 @@ async function getStatus(host) {
   const bucket = Math.floor(secs / NUDGE_EVERY);
   const last = nudged[date]?.[domain] ?? 0;
 
+  const limitMin = siteLimits[domain] ?? userLimitMin;
+  const overLimit = secs >= limitMin * 60;
+  const snoozed = (snoozedUntil[domain] ?? 0) > Date.now();
+  
   return {
     tracked: true,
     domain,
     minutes: Math.floor(secs / 60),
-    limitMin: siteLimits[domain] ?? userLimitMin,
+    limitMin,
     bucket,
-    nudge: bucket > last,
+    nudge: bucket > last && !overLimit,
+    block: overLimit && !snoozed,
   };
 }
 
@@ -220,6 +227,16 @@ chrome.runtime.onMessage.addListener((msg, sender, sendResponse) => {
       for (const d of Object.keys(nudged)) if (d !== date) delete nudged[d];
       await chrome.storage.local.set({ nudged });
     });
+  }
+
+  if (msg.type === "snooze") {
+    serial(async () => {
+      const status = await getStatus(msg.host);
+      if (!status.tracked) return;
+      const { snoozedUntil = {} } = await chrome.storage.local.get("snoozedUntil"); 
+      snoozedUntil[statusDomain] = Date.now() + SNOOZE_MIN * 60 * 1000;
+      await chrome.storage.local.set({ snoozedUntil });
+    })
   }
 
   if (msg.type === "leave" && sender.tab?.id) chrome.tabs.remove(sender.tab.id);

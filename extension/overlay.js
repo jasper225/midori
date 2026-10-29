@@ -3,6 +3,11 @@
 
   let showing = false;
 
+  const MODES = {
+    nudge: { title: "Time for a pause", wait: 10, stay: "Continue anyway" },
+    block: { title: "Done for today", wait: 30, stay: "Give me 10 more minutes" },
+  }
+
   async function check() {
     if (showing || document.hidden) return;
     let status;
@@ -11,14 +16,19 @@
     } catch {
       return; // worker asleep or extension reloaded
     }
-    if (status?.tracked && status.nudge) show(status);
+    if (!status?.tracked) return;
+    if (status.block) show(status, "block");
+    else if (status.nudge) show (status, "nudge")
   }
 
-  function show(status) {
+  function show(status, mode) {
     showing = true;
+    const cfg = MODES[mode];
+    if (mode === "nudge") {
     chrome.runtime
       .sendMessage({ type: "nudged", host: location.hostname, bucket: status.bucket })
       .catch(() => {});
+    }
 
     const host = document.createElement("div");
     host.style.cssText = "all:initial;position:fixed;inset:0;z-index:2147483647;";
@@ -53,7 +63,8 @@
         </div>
       </div></div>`;
 
-    root.getElementById("msg").textContent =
+      root.getElementById("title").textContent =
+      root.getElementById("msg").textContent =
       `You've spent about ${status.minutes} minutes on ${status.domain} today. ` +
       `Your daily limit is ${status.limitMin} minutes.`;
 
