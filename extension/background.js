@@ -1,5 +1,6 @@
 const server = "http://localhost:4000";
 const NUDGE_EVERY = 60;
+const SNOOZE_MIN = 10;
 
 async function getStatus(host) {
   const {
@@ -236,7 +237,7 @@ chrome.runtime.onMessage.addListener((msg, sender, sendResponse) => {
       const { snoozedUntil = {} } = await chrome.storage.local.get("snoozedUntil"); 
       snoozedUntil[statusDomain] = Date.now() + SNOOZE_MIN * 60 * 1000;
       await chrome.storage.local.set({ snoozedUntil });
-    })
+    });
   }
 
   if (msg.type === "leave" && sender.tab?.id) chrome.tabs.remove(sender.tab.id);

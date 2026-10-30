@@ -24,6 +24,7 @@
   function show(status, mode) {
     showing = true;
     const cfg = MODES[mode];
+    
     if (mode === "nudge") {
     chrome.runtime
       .sendMessage({ type: "nudged", host: location.hostname, bucket: status.bucket })
@@ -53,7 +54,7 @@
         @keyframes breathe { 0%,100% { transform:scale(.7) } 50% { transform:scale(1.25) } }
       </style>
       <div class="wrap"><div class="card">
-        <h1>Time for a pause</h1>
+        <h1 id="title"></h1>
         <p id="msg"></p>
         <div class="circle"></div>
         <div class="label" id="label">Breathe in…</div>
@@ -63,11 +64,15 @@
         </div>
       </div></div>`;
 
-      root.getElementById("title").textContent =
+      root.getElementById("title").textContent = cfg.title;
       root.getElementById("msg").textContent =
-      `You've spent about ${status.minutes} minutes on ${status.domain} today. ` +
-      `Your daily limit is ${status.limitMin} minutes.`;
+        mode === "block" 
+        ? `You've reached your ${status.limitMin}-minute limit on ${status.domain} today.` +
+          `(${status.minutes} today) min so far.`
+        : `You've spent about ${status.minutes} minutes on ${status.domain} today. ` +
+          `Your daily limit is ${status.limitMin} minutes.`;
 
+    document.querySelectorAll("video, audio").forEach((m) => m.pause());
     // Freeze the page underneath
     const prevOverflow = document.documentElement.style.overflow;
     document.documentElement.style.overflow = "hidden";
@@ -85,15 +90,15 @@
 
     // 10-second friction before "Continue anyway" unlocks
     const stay = root.getElementById("stay");
-    let left = 10;
-    stay.textContent = `Continue anyway (${left})`;
+    let left = cfg.wait;
+    stay.textContent = `${cfg.stay} (${left})`;
     const countdown = setInterval(() => {
       left--;
       if (left > 0) {
-        stay.textContent = `Continue anyway (${left})`;
+        stay.textContent = `${cfg.stay} (${left})`;
       } else {
         clearInterval(countdown);
-        stay.textContent = "Continue anyway";
+        stay.textContent = cfg.stay;
         stay.disabled = false;
       }
     }, 1000);
@@ -106,7 +111,12 @@
       showing = false;
     };
 
-    stay.addEventListener("click", close);
+    stay.addEventListener("click", () => {
+      if (mode === "block") {
+        chrome.runtime.sendMessage({ type: "leave"}).catch(() => {});
+      }
+      close();
+    });
     root.getElementById("leave").addEventListener("click", () => {
       chrome.runtime.sendMessage({ type: "leave" }).catch(() => {});
       close();
