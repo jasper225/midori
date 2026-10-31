@@ -2,17 +2,43 @@ body {
     width: 280px;
     font: 14px system-ui; 
     padding: 12px;
+    color: white;
+    background-color: rgba(15, 23, 20, .94);
 }
 
-input, button {
+input {
+    width: 100%; 
+    background-color: rgba(52, 53, 52, 0.94);
+    border: 1px solid rgba(52, 53, 52, 0.94);;
+    margin: 4px 0; 
+    padding: 6px; 
+    box-sizing: border-box;
+    caret-color: white;
+    color: white;
+}
+
+input:focus {
+    outLine: none;
+    border-color: rgba(52, 53, 52, 0.94);
+}
+
+button {
     width: 100%; 
     margin: 4px 0; 
     padding: 6px; 
     box-sizing: border-box;
+    background-color: #4caf7d;
+    border: 1px solid #4caf7d;
+    cursor: pointer;
+}
+
+button:hover {
+    background-color: #66c78e;
+    border: 1px solid #66c78e;
 }
 
 h1 {
-    color: #024b3f;
+    color: #4caf7d;
     align-items: center;
 }
 #err { color: #b00020; }

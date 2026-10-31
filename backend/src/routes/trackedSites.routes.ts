@@ -1,5 +1,5 @@
 import { Router } from "express";
-import { addSite, deleteSite, getSites } from "../controllers/trackedSites.controller.js";
+import { addSite, deleteSite, getSites, updateSite } from "../controllers/trackedSites.controller.js";
 import { requireAuth } from "../middleware/requireAuth.js";
 
 const router = Router();
@@ -7,6 +7,7 @@ const router = Router();
 router.use(requireAuth);
 router.post("/", addSite);
 router.get("/", getSites);
-router.delete("/:id/delete", deleteSite);
+router.patch("/:id", updateSite);
+router.delete("/:id", deleteSite);
 
 export default router;

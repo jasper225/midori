@@ -17,8 +17,13 @@
       return; // worker asleep or extension reloaded
     }
     if (!status?.tracked) return;
-    if (status.block) show(status, "block");
-    else if (status.nudge) show (status, "nudge")
+    try {
+      if (status.block) show(status, "block");
+      else if (status.nudge) show(status, "nudge")
+    } catch (err) {
+      console.error("midori overlay failed", err);
+      showing = false;
+    }
   }
 
   function show(status, mode) {
@@ -38,7 +43,7 @@
     root.innerHTML = `
       <style>
         .wrap { position:fixed; inset:0; display:flex; align-items:center; justify-content:center;
-                background:rgba(15,23,20,.94); font-family:system-ui,sans-serif; color:#eaf3ee; }
+                background:rgba(15,23,20,${mode === "block" ? ".98" : ".94"}); font-family:system-ui,sans-serif; color:#eaf3ee; }
         .card { text-align:center; max-width:360px; padding:32px; }
         h1 { font-size:22px; margin:0 0 8px; font-weight:600; }
         p { margin:0 0 24px; color:#a9bfb3; line-height:1.5; }
@@ -68,7 +73,7 @@
       root.getElementById("msg").textContent =
         mode === "block" 
         ? `You've reached your ${status.limitMin}-minute limit on ${status.domain} today.` +
-          `(${status.minutes} today) min so far.`
+          `(${status.minutes} minutes so far). `
         : `You've spent about ${status.minutes} minutes on ${status.domain} today. ` +
           `Your daily limit is ${status.limitMin} minutes.`;
 
@@ -113,7 +118,7 @@
 
     stay.addEventListener("click", () => {
       if (mode === "block") {
-        chrome.runtime.sendMessage({ type: "leave"}).catch(() => {});
+        chrome.runtime.sendMessage({ type: "snooze", host: location.hostname }).catch(() => {});
       }
       close();
     });

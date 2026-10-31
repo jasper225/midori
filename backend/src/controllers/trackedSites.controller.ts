@@ -66,6 +66,32 @@ export const getSites = async (req: Request, res: Response) => {
   }
 };
 
+export const updateSite = async (req: Request, res: Response) => {
+  const id = req.params.id;
+  if (typeof id !== "string") {
+    return res.status(400).json({ error: "Invalid site ID" });
+  }
+  const parsed = z
+    .object({ dailyLimitMin: z.number().int().min(1).max(1440).nullable() })
+    .safeParse(req.body);
+  if (!parsed.success) {
+    return res.status(400).json({ error: parsed.error.flatten().fieldErrors });
+  }
+
+  try {
+    const result = await prisma.trackedSites.updateMany({
+      where: { id, userId: req.userId! },
+      data: { dailyLimitMin: parsed.data.dailyLimitMin }
+    });
+    if (result.count === 0) return res.status(404).json({ error: "Site not found" });
+    res.status(204).send();
+  } catch (err) {
+    console.error(err);
+    res.status(500).json({ error: "Server error" });
+  }
+  
+}
+
 export const deleteSite = async (req: Request, res: Response) => {
   const id = req.params.id;
   if (typeof id !== "string") {
@@ -76,9 +102,7 @@ export const deleteSite = async (req: Request, res: Response) => {
     const result = await prisma.trackedSites.deleteMany({
       where: { id, userId: req.userId! },
     });
-    if (result.count === 0) {
-      return res.status(404).json({ error: "Site not found" });
-    }
+    if (result.count === 0) return res.status(404).json({ error: "Site not found" });
     res.status(204).send();
   } catch (err) {
     console.error(err);

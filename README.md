@@ -65,7 +65,7 @@ npm run dev
 ```
 
 Open [`http://localhost:3000`](http://localhost:3000). This is currently the
-unmodified starter page rather than the midori dashboard.
+unmodified starter page serving as a placeholder for the dashboard later to be implemented.
 
 ### 4. Load the browser extension
 
@@ -110,9 +110,10 @@ bearer token.
 | `GET` | `/auth/me` | Get the authenticated user's profile |
 | `GET` | `/sites` | List tracked domains |
 | `POST` | `/sites` | Add a tracked domain and optional daily limit |
-| `DELETE` | `/sites/:id/delete` | Remove a tracked domain |
+| `PATCH` | `/sites/:id` | Adjust the daily limit of the tracked domain |
+| `DELETE` | `/sites/:id` | Remove a tracked domain |
 | `POST` | `/sessions` | Start a scroll session |
-| `POST` | `/sessions/:id/end` | End a scroll session |
+| `POST` | `/sessions/:id` | End a scroll session |
 | `POST` | `/usage` | Record daily time and scroll usage |
 | `GET` | `/usage/today?date=YYYY-MM-DD` | Get usage totals for a date |
 
