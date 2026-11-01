@@ -18,6 +18,8 @@ const usageSchema = z.object({
     .max(50),
 });
 
+const rangeSchema = z.object({ from: dateString, to: dateString });
+
 // "2026-10-16" -> Date at UTC midnight, which is what a @db.Date column stores
 const toDbDate = (s: string) => {
   const d = new Date(`${s}T00:00:00.000Z`);
@@ -76,3 +78,28 @@ export const todayUsage = async (req: Request, res: Response) => {
     res.status(500).json({ error: "Server error" });
   }
 };
+
+export const rangeUsage = async (req: Request, res: Response) => {
+  const parsed = rangeSchema.safeParse(req.query);
+  if (!parsed.success) return res.status(400).json({ error: parsed.error.flatten().fieldErrors });
+  
+  const from = toDbDate(parsed.data.from);
+  const to = toDbDate(parsed.data.to);
+
+  if (!from || !to || from > to) return res.status(400).json({ error: "Invalid range"});
+  if (to.getTime() - from.getTime() > 90 * 86_400_000) return res.status(400).json({ error: "Range too large (max 90 days)" });
+
+  try {
+    const rows = await prisma.dailyUsage.findMany({
+      where: { userId: req.userId!, date: { gte: from, lte: to } },
+      select: { date: true, domain: true, seconds: true, scrollPx: true },
+      orderBy: { seconds: "asc" },
+    });
+    res.json({
+      usage: rows.map((r) => ({ ...r, date: r.date.toISOString().slice(0, 10) })),
+    });
+  } catch (err) {
+    console.error(err);
+    res.status(500).json({ error: "Server error" });
+  }
+}

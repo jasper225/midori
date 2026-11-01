@@ -116,6 +116,7 @@ bearer token.
 | `POST` | `/sessions/:id` | End a scroll session |
 | `POST` | `/usage` | Record daily time and scroll usage |
 | `GET` | `/usage/today?date=YYYY-MM-DD` | Get usage totals for a date |
+| `GET` | `/usage/range?from=YYYY-MM-DD&to=YYYY-MM-DD` | Get usage totals for a range of dates |
 
 ## Development checks
 
