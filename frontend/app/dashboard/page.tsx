@@ -10,6 +10,7 @@ import {
   YAxis,
 } from "recharts";
 import { api, ApiError, lastNDays } from "@/lib/api";
+import "./dashboard.css";
 
 type Site = { id: string; domain: string; dailyLimitMin: number | null };
 type Row = { date: string; domain: string; seconds: number; scrollPx: number };
@@ -80,14 +81,14 @@ export default function Dashboard() {
   async function setLimit(id: string, value: string) {
     const dailyLimitMin = value === "" ? null : Number(value);
     await api(`/sites/${id}`, {
-        method: "POST",
-        body: JSON.stringify({ dailyLimitMin }),
+      method: "POST",
+      body: JSON.stringify({ dailyLimitMin }),
     });
     load();
   }
 
   async function removeSite(id: string) {
-    await api(`/sites/${id}`, { method: "DELETE"});
+    await api(`/sites/${id}`, { method: "DELETE" });
     load();
   }
 
@@ -98,62 +99,86 @@ export default function Dashboard() {
 
   return (
     <main>
-        <header>
-            <h1>Midori</h1>
-            <div className="text-sm">
-                {email} <button className="ml-3 underline" onClick={logout}>Log out</button>
-            </div>
-        </header>
+      <header>
+        <h1 className="text-2xl font-semibold">Midori</h1>
+        <div className="text-sm">
+          {email}{" "}
+          <button className="logout-btn" onClick={logout}>
+            Log out
+          </button>
+        </div>
+      </header>
 
-        {error && <p className="text-sm text-red-600">{error}</p>}
+      {error && <p className="error-msg">{error}</p>}
 
-        <section>
-            <h2 className="mb-2 font-medium">Last 7 days (minutes)</h2>
-            <div className="h-56">
-                <ResponsiveContainer>
-                    <BarChart data={chartData}>
-                        <XAxis dataKey="day" />
-                        <YAxis allowDecimals={false} />
-                        <Tooltip />
-                        <Bar dataKey="minutes" fill="#4caf7d" radius={[4, 4, 0, 0]} />
-                    </BarChart>
-                </ResponsiveContainer>
-            </div>
-        </section>
+      <section>
+        <h2 className="mb-2 font-medium">Last 7 days (minutes)</h2>
+        <div className="h-56">
+          <ResponsiveContainer>
+            <BarChart data={chartData}>
+              <XAxis dataKey="day" />
+              <YAxis allowDecimals={false} />
+              <Tooltip />
+              <Bar dataKey="minutes" fill="#4caf7d" radius={[4, 4, 0, 0]} />
+            </BarChart>
+          </ResponsiveContainer>
+        </div>
+      </section>
 
-        <section>
-            <h2 className="mb-2 font-medium">Tracked sites</h2>
-            <form onSubmit={addSite} className="mb-3 flex gap-2">
-                <input 
-                    className="flex-1 rounded border p-2" 
-                    value={newDomain}
-                    onChange={(e) => setNewDomain(e.target.value)}
-                    required
-                />
-                <button className="rounded bg-green-600 px-4 text-white">
-                    Add
-                </button>
-            </form>
-            <ul className="divide-y">
-              {sites.map((s) => (
+      <section>
+        <h2 className="mb-2 font-medium">By site</h2>
+        {byDomain.length === 0 ? (
+          <p className="text-sm text-gray-500">No usage yet this week.</p>
+        ) : (
+          <ul className="divide-y">
+            {byDomain.map(([domain, v]) => (
+              <li key={domain} className="flex justify-between py-2 text-sm">
+                <span>{domain}</span>
+                <span>
+                  {Math.round(v.seconds / 60)} min · {v.px.toLocaleString()} px
+                  scrolled
+                </span>
+              </li>
+            ))}
+          </ul>
+        )}
+      </section>
+
+      <section>
+        <h2 className="mb-2 font-medium">Tracked sites</h2>
+        <form onSubmit={addSite} className="site-form">
+          <input
+            className="domain-input"
+            value={newDomain}
+            onChange={(e) => setNewDomain(e.target.value)}
+            required
+          />
+          <button className="add-btn">Add</button>
+        </form>
+        <ul className="divide-y">
+          {sites.map((s) => (
             <li key={s.id} className="flex items-center gap-3 py-2 text-sm">
               <span className="flex-1">{s.domain}</span>
-              <label className="flex items-center gap-1">
+              <label className="limit-label">
                 Limit
                 <input
-                  type="number" min={1} max={1440} placeholder="default"
+                  type="number"
+                  min={1}
+                  max={1440}
+                  placeholder="default"
                   defaultValue={s.dailyLimitMin ?? ""}
                   onBlur={(e) => setLimit(s.id, e.target.value)}
-                  className="w-20 rounded border p-1"
+                  className="limit-input"
                 />
                 min
               </label>
-              <button className="text-red-600" onClick={() => removeSite(s.id)}>Remove</button>
+              <button className="remove-btn" onClick={() => removeSite(s.id)}>
+                Remove
+              </button>
             </li>
-          ))}  
-            </ul>
-        </section>
+          ))}
+        </ul>
+      </section>
     </main>
-  )
-
+  );
 }

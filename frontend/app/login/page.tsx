@@ -2,6 +2,7 @@
 import { useState } from "react";
 import { useRouter } from "next/navigation";
 import { api } from "@/lib/api";
+import "./login.css";
 
 export default function LoginPage() {
   const router = useRouter();
@@ -25,8 +26,8 @@ export default function LoginPage() {
   }
 
   return (
-    <main>
-      <h1></h1>
+    <main className="mx-auto mt-24 max-w-sm p-6">
+      <h1 className="mb-4 text-2xl font-semibold">Midori</h1>
       <form onSubmit={submit}>
         <input
           className="rounded border p-2"
@@ -45,12 +46,14 @@ export default function LoginPage() {
           required
         />
         <button className="rounded bg-green-600 p-2 text-white">
-            {mode === "login" ? "Log in" : "Create account"}
+          {mode === "login" ? "Log in" : "Create account"}
         </button>
         {error && <p className="text-sm text-red-600">{error}</p>}
       </form>
       <button onClick={() => setMode(mode === "login" ? "register" : "login")}>
-        {mode === "login" ? "Need an account? Register" : "Already have an account? Log in"}
+        {mode === "login"
+          ? "Need an account? Register"
+          : "Already have an account? Log in"}
       </button>
     </main>
   );

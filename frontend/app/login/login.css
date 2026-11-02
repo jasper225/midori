@@ -1,0 +1,24 @@
+main {
+    margin-inline: auto;
+    margin-top: 6rem;
+    max-width: 24rem;
+    padding: 1.5rem;
+}
+
+h1 {
+    margin-bottom: 1rem;
+    font-size: 1.5rem;
+    line-height: var(--tw-leading);
+    font-weight: 600;
+}
+
+input {
+    border-radius: 0.25rem;
+    border-width: 1px;
+    padding: 0.5rem;
+}
+
+button {
+    border-radius: 0.25rem;
+    background-color: var(--color-green-600)
+}

@@ -1,0 +1,107 @@
+h1 {
+    font-size: 1.5rem;
+    font-weight: 600;
+}
+
+.text-sm {
+    font-size: 0.875rem;
+    line-height: var(--tw-leading);
+}
+
+.logout-btn {
+    margin-left: 0.75rem;
+    text-decoration-line: underline;
+}
+
+.error-msg {
+    font-size: var(--text-sm);
+    line-height: var(--tw-leading);
+    color: var(--color-red-600);
+}
+
+h2 {
+    margin-bottom: 0.5rem;
+    font-weight: var(--font-weight-medium);
+}
+
+.h-56 {
+    height: 14rem;
+}
+
+.no-usage {
+    font-size: var(--text-sm);
+    line-height: var(--tw-leading);
+    color: var(--color-gray-500);
+}
+
+.site-form {
+    margin-bottom: 0.75rem;
+    display: flex;
+    gap: 0.5rem;
+}
+
+.domain-input {
+    flex: 1;
+    border-radius: 0.25rem;
+    border-width: 1px;
+    padding: 0.5rem;
+}
+
+.add-btn {
+    border-radius: 0.25rem;
+    background-color: var(--color-green-600);
+    padding-inline: 1rem;
+    color: var(--color-white)
+}
+
+:where(.divide-y > :not(:last-child)) {
+ --tw-divide-y-reverse: 0;
+ border-bottom-style: var(--tw-border-style);
+ border-top-style: var(--tw-border-style);
+ border-top-width: calc(1px * var(--tw-divide-y-reverse));
+ border-bottom-width: calc(1px * calc(1 - var(--tw-divide-y-reverse)));
+}
+
+@property --tw-divide-y-reverse {
+ syntax: "*";
+ inherits: false;
+ initial-value: 0;
+}
+
+@property --tw-border-style {
+ syntax: "*";
+ inherits: false;
+ initial-value: solid;
+}
+
+.list-item {
+    display: flex;
+    align-items: center;
+    gap: 0.75rem;
+    padding-block: 0.5rem;
+    font-size: var(--text-sm);
+    line-height: var(--tw-leading)
+}
+
+.flex-1 {
+    flex: 1;
+}
+
+.limit-label {
+    display: flex;
+    align-items: center;
+    gap: 0.25rem;
+}
+
+.limit-input {
+    width: 5rem;
+    border-radius: 0.25rem;
+    border-style: var(--tw-border-style);
+    padding: 0.25rem;
+}
+
+.remove-btn {
+    color: var(--color-red-600);
+}
+
+
