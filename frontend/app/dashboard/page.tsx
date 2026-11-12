@@ -146,33 +146,35 @@ export default function Dashboard() {
 
       <section>
         <h2 className="mb-2 font-medium">Tracked sites</h2>
-        <form onSubmit={addSite} className="site-form">
+        <form onSubmit={addSite}  id="site-form" className="flex mb-3 gap-2">
           <input
-            className="domain-input"
+            className="flex-1 rounded border p-2"
+            id="domain-input"
             value={newDomain}
             onChange={(e) => setNewDomain(e.target.value)}
             required
           />
-          <button className="add-btn">Add</button>
+          <button className="rounded --color-brand px-4 text-white">Add</button>
         </form>
         <ul className="divide-y">
           {sites.map((s) => (
-            <li key={s.id} className="flex items-center gap-3 py-2 text-sm">
+            <li key={s.id} className="flex items-center gap-3 py-2 text-sm" id="list-item">
               <span className="flex-1">{s.domain}</span>
-              <label className="limit-label">
+              <label className="flex items-center gap-1" id="limit-label">
                 Limit
                 <input
                   type="number"
+                  id="limit-input"
                   min={1}
                   max={1440}
                   placeholder="default"
                   defaultValue={s.dailyLimitMin ?? ""}
                   onBlur={(e) => setLimit(s.id, e.target.value)}
-                  className="limit-input"
+                  className="w-20 rounded border p-1"
                 />
                 min
               </label>
-              <button className="remove-btn" onClick={() => removeSite(s.id)}>
+              <button id="remove-site" className="text-red-600" onClick={() => removeSite(s.id)}>
                 Remove
               </button>
             </li>

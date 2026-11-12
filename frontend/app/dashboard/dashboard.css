@@ -34,17 +34,24 @@ h2 {
     color: var(--color-gray-500);
 }
 
-.site-form {
+#site-form {
     margin-bottom: 0.75rem;
     display: flex;
     gap: 0.5rem;
 }
 
-.domain-input {
+#domain-input {
     flex: 1;
     border-radius: 0.25rem;
+    border-style: var(--tw-border-style);
     border-width: 1px;
     padding: 0.5rem;
+}
+
+@property --tw-border-style {
+    syntax: "*";
+    inherits: false;
+    initial-value: solid;
 }
 
 .add-btn {
@@ -74,7 +81,7 @@ h2 {
  initial-value: solid;
 }
 
-.list-item {
+#list-item {
     display: flex;
     align-items: center;
     gap: 0.75rem;
@@ -87,13 +94,13 @@ h2 {
     flex: 1;
 }
 
-.limit-label {
+#limit-label {
     display: flex;
     align-items: center;
     gap: 0.25rem;
 }
 
-.limit-input {
+#limit-input {
     width: 5rem;
     border-radius: 0.25rem;
     border-style: var(--tw-border-style);

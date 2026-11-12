@@ -45,7 +45,7 @@ export default function LoginPage() {
           onChange={(e) => setPassword(e.target.value)}
           required
         />
-        <button className="rounded bg-green-600 p-2 text-white">
+        <button className="rounded p-2 text-white">
           {mode === "login" ? "Log in" : "Create account"}
         </button>
         {error && <p className="text-sm text-red-600">{error}</p>}
