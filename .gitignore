@@ -1,5 +1,6 @@
 node_modules/
 .env*
+docker-compose.yml
 /backend/coverage/
 /backend/dist/
 /backend/build/

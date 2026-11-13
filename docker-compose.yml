@@ -7,5 +7,20 @@ services:
       POSTGRES_DB: midori
     ports: ["5432:5432"]
     volumes: [pgdata:/var/lib/postgresql/data]
+    healthcheck:
+      test: ["CMD-SHELL", "pg_isready -U app -d midori"]
+      interval: 5s
+      retries: 10
+
+  backend:
+    build: ./backend
+    environment:
+      DATABASE_URL: postgresql://postgres:sealion28@db:5432/midori
+      JWT_SECRET: ${JWT_SECRET}
+    ports: ["4000:4000"]
+    depends_on:
+      db:
+        condition: service_healthy
+    command: sh -c "npx prisma migrate deploy && node dist/index.js"
 volumes:
   pgdata:

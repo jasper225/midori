@@ -2,10 +2,10 @@ import express from "express";
 import cors from "cors";
 import cookieParser from "cookie-parser";
 import helmet from "helmet";
-import authRoutes from "../backend/src/routes/auth.routes.js";
-import sessionRoutes from "../backend/src/routes/scrollSession.routes.js";
-import siteRoutes from "../backend/src/routes/trackedSites.routes.js";
-import usageRoutes from "../backend/src/routes/dailyUsage.routes.js";
+import authRoutes from "./routes/auth.routes.js";
+import sessionRoutes from "./routes/scrollSession.routes.js";
+import siteRoutes from "./routes/trackedSites.routes.js";
+import usageRoutes from "./routes/dailyUsage.routes.js";
 
 const app = express();
 
