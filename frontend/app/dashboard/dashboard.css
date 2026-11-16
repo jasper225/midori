@@ -112,3 +112,125 @@ h2 {
 }
 
 
+
+/* Streak */
+.streak-card {
+    display: flex;
+    align-items: center;
+    gap: 1rem;
+    padding: 1rem;
+    border: 1px solid var(--color-gray-200);
+    border-radius: 0.5rem;
+}
+
+.streak-count {
+    font-size: 2.5rem;
+    font-weight: 700;
+    line-height: 1;
+    color: var(--color-brand);
+    min-width: 3ch;
+    text-align: center;
+}
+
+.font-medium {
+    font-weight: var(--font-weight-medium);
+}
+
+/* Today's progress */
+.progress-list {
+    display: flex;
+    flex-direction: column;
+    gap: 0.75rem;
+}
+
+.progress-label {
+    display: flex;
+    justify-content: space-between;
+    font-size: var(--text-sm);
+    margin-bottom: 0.25rem;
+}
+
+.progress-label .over {
+    color: var(--color-red-600);
+    font-weight: var(--font-weight-medium);
+}
+
+.progress-track {
+    height: 0.5rem;
+    border-radius: 9999px;
+    background: var(--color-gray-200);
+    overflow: hidden;
+}
+
+.progress-fill {
+    height: 100%;
+    border-radius: inherit;
+    background: var(--color-brand);
+    transition: width 300ms ease;
+}
+
+.progress-fill.warn {
+    background: var(--color-amber-500);
+}
+
+.progress-fill.over {
+    background: var(--color-red-600);
+}
+
+/* Mood */
+.mood-picker {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 0.5rem;
+}
+
+.mood-btn {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    gap: 0.125rem;
+    padding: 0.5rem 0.75rem;
+    border: 1px solid var(--color-gray-200);
+    border-radius: 0.5rem;
+    font-size: 1.5rem;
+    cursor: pointer;
+}
+
+.mood-btn.selected {
+    border-color: var(--color-brand);
+    outline: 2px solid var(--color-brand);
+}
+
+.mood-label {
+    font-size: 0.75rem;
+}
+
+.mood-note {
+    width: 100%;
+    margin-top: 0.5rem;
+    padding: 0.5rem;
+    border: 1px solid var(--color-gray-200);
+    border-radius: 0.25rem;
+    font-size: var(--text-sm);
+}
+
+.mood-week {
+    display: flex;
+    justify-content: space-between;
+    margin-top: 0.75rem;
+}
+
+.mood-week li {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    font-size: 0.75rem;
+}
+
+.mood-week-emoji {
+    font-size: 1.25rem;
+}
+
+.mood-week-day {
+    color: var(--color-gray-500);
+}

@@ -163,6 +163,22 @@ async function syncNow() {
       }
     }
     await chrome.storage.local.set({ pending, pendingScroll });
+
+    // Seed today's totals from the server so limits account for time logged
+    // on other machines or before a reinstall. Runs after the POSTs above, so
+    // server + whatever is still pending = everything we know about today.
+    const today = localDate();
+    const todayRes = await fetch(`${server}/usage/today?date=${today}`, { headers });
+    if (todayRes.status === 401)
+      return chrome.storage.local.remove(["token", "email"]);
+    if (todayRes.ok) {
+      const { usage = [] } = await todayRes.json();
+      const seeded = {};
+      for (const { domain, seconds } of usage) seeded[domain] = seconds;
+      for (const [domain, secs] of Object.entries(pending[today] ?? {}))
+        seeded[domain] = (seeded[domain] ?? 0) + secs;
+      await chrome.storage.local.set({ totals: { [today]: seeded } });
+    }
   } catch (err) {
     console.warn("Sync failed, will retry:", err.message); // offline: keep pending
   }
@@ -235,7 +251,7 @@ chrome.runtime.onMessage.addListener((msg, sender, sendResponse) => {
       const status = await getStatus(msg.host);
       if (!status.tracked) return;
       const { snoozedUntil = {} } = await chrome.storage.local.get("snoozedUntil"); 
-      snoozedUntil[statusDomain] = Date.now() + SNOOZE_MIN * 60 * 1000;
+      snoozedUntil[status.domain] = Date.now() + SNOOZE_MIN * 60 * 1000;
       await chrome.storage.local.set({ snoozedUntil });
     });
   }

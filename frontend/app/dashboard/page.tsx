@@ -9,38 +9,74 @@ import {
   XAxis,
   YAxis,
 } from "recharts";
-import { api, ApiError, lastNDays } from "@/lib/api";
+import { api, ApiError, lastNDays, toLocalDate } from "@/lib/api";
 import "./dashboard.css";
 
 type Site = { id: string; domain: string; dailyLimitMin: number | null };
 type Row = { date: string; domain: string; seconds: number; scrollPx: number };
+type LimitProgress = {
+  domain: string;
+  seconds: number;
+  limitMin: number;
+  pct: number;
+  over: boolean;
+};
+type Summary = {
+  date: string;
+  limits: LimitProgress[];
+  streak: { current: number; completedDays: number; todayOnTrack: boolean };
+};
+type CheckIn = { date: string; mood: number; note: string | null };
+
+const MOODS = [
+  { value: 1, emoji: "😞", label: "Awful" },
+  { value: 2, emoji: "🙁", label: "Low" },
+  { value: 3, emoji: "😐", label: "Okay" },
+  { value: 4, emoji: "🙂", label: "Good" },
+  { value: 5, emoji: "😄", label: "Great" },
+];
+const moodEmoji = (v: number) => MOODS.find((m) => m.value === v)?.emoji ?? "";
 
 export default function Dashboard() {
   const router = useRouter();
   const [email, setEmail] = useState("");
+  const [days, setDays] = useState<string[]>([]);
   const [sites, setSites] = useState<Site[]>([]);
   const [usage, setUsage] = useState<Row[]>([]);
   const [newDomain, setNewDomain] = useState("");
   const [error, setError] = useState("");
+  const [summary, setSummary] = useState<Summary | null>(null);
+  const [checkIns, setCheckIns] = useState<CheckIn[]>([]);
+  const [moodNote, setMoodNote] = useState("");
 
-  const days = lastNDays(7);
+  // Computed once on mount (client-only, so dates follow the user's timezone)
+  useEffect(() => {
+    setDays(lastNDays(7));
+  }, []);
+
+  const today = days[days.length - 1];
+  const todayCheckIn = checkIns.find((c) => c.date === today);
 
   const load = useCallback(async () => {
+    if (days.length === 0) return;
     try {
-      const [me, s, u] = await Promise.all([
+      const [me, s, u, sum, m] = await Promise.all([
         api<{ user: { email: string } }>("/auth/me"),
         api<{ sites: Site[] }>("/sites"),
         api<{ usage: Row[] }>(`/usage/range?from=${days[0]}&to=${days[6]}`),
+        api<Summary>(`/usage/summary?date=${toLocalDate(new Date())}`),
+        api<{ checkIns: CheckIn[] }>(`/mood?from=${days[0]}&to=${days[6]}`),
       ]);
       setEmail(me.user.email);
       setSites(s.sites);
       setUsage(u.usage);
+      setSummary(sum);
+      setCheckIns(m.checkIns);
     } catch (err) {
-      if (err instanceof ApiError && err.status === 401)
-        router.replace("/login");
+      if (err instanceof ApiError && err.status === 401) router.replace("/login");
       else setError("Could not load data");
     }
-  }, [router]);
+  }, [router, days]);
 
   useEffect(() => {
     load();
@@ -81,10 +117,28 @@ export default function Dashboard() {
   async function setLimit(id: string, value: string) {
     const dailyLimitMin = value === "" ? null : Number(value);
     await api(`/sites/${id}`, {
-      method: "POST",
+      method: "PATCH",
       body: JSON.stringify({ dailyLimitMin }),
     });
     load();
+  }
+
+  async function checkIn(mood: number) {
+    setError("");
+    try {
+      await api("/mood", {
+        method: "POST",
+        body: JSON.stringify({
+          date: today,
+          mood,
+          ...(moodNote.trim() && { note: moodNote.trim() }),
+        }),
+      });
+      setMoodNote("");
+      load();
+    } catch (err) {
+      setError(err instanceof Error ? err.message : "Could not save check-in");
+    }
   }
 
   async function removeSite(id: string) {
@@ -110,6 +164,94 @@ export default function Dashboard() {
       </header>
 
       {error && <p className="error-msg">{error}</p>}
+
+      <section className="streak-card">
+        <div className="streak-count">{summary?.streak.current ?? 0}</div>
+        <div>
+          <div className="font-medium">
+            day{summary?.streak.current === 1 ? "" : "s"} under your limits
+          </div>
+          <div className="no-usage">
+            {!summary
+              ? "Loading…"
+              : summary.streak.todayOnTrack
+                ? "On track today. Keep it up."
+                : summary.streak.completedDays > 0
+                  ? `Limit hit today. Your ${summary.streak.completedDays}-day streak ended.`
+                  : "Limit hit today. Tomorrow is a fresh start."}
+          </div>
+        </div>
+      </section>
+
+      <section>
+        <h2>Today</h2>
+        {!summary || summary.limits.length === 0 ? (
+          <p className="no-usage">Add a site below to start tracking limits.</p>
+        ) : (
+          <ul className="progress-list">
+            {summary.limits.map((l) => (
+              <li key={l.domain}>
+                <div className="progress-label">
+                  <span>{l.domain}</span>
+                  <span className={l.over ? "over" : ""}>
+                    {Math.round(l.seconds / 60)} / {l.limitMin} min
+                  </span>
+                </div>
+                <div
+                  className="progress-track"
+                  role="progressbar"
+                  aria-label={`${l.domain} usage`}
+                  aria-valuenow={l.pct}
+                  aria-valuemin={0}
+                  aria-valuemax={100}
+                >
+                  <div
+                    className={`progress-fill ${l.over ? "over" : l.pct >= 80 ? "warn" : ""}`}
+                    style={{ width: `${l.pct}%` }}
+                  />
+                </div>
+              </li>
+            ))}
+          </ul>
+        )}
+      </section>
+
+      <section>
+        <h2>How are you feeling?</h2>
+        <div className="mood-picker" role="group" aria-label="Mood">
+          {MOODS.map((m) => (
+            <button
+              key={m.value}
+              type="button"
+              className={`mood-btn ${todayCheckIn?.mood === m.value ? "selected" : ""}`}
+              aria-pressed={todayCheckIn?.mood === m.value}
+              title={m.label}
+              onClick={() => checkIn(m.value)}
+            >
+              <span aria-hidden>{m.emoji}</span>
+              <span className="mood-label">{m.label}</span>
+            </button>
+          ))}
+        </div>
+        <input
+          className="mood-note"
+          placeholder={todayCheckIn?.note ?? "Add a note (optional), then pick a mood"}
+          maxLength={500}
+          value={moodNote}
+          onChange={(e) => setMoodNote(e.target.value)}
+        />
+        <ol className="mood-week">
+          {days.map((d) => {
+            const c = checkIns.find((x) => x.date === d);
+            return (
+              <li key={d} title={c?.note ?? undefined}>
+                <span className="mood-week-emoji">{c ? moodEmoji(c.mood) : "·"}</span>
+                <span className="mood-week-day">{d.slice(5)}</span>
+              </li>
+            );
+          })}
+        </ol>
+      </section>
 
       <section>
         <h2 className="mb-2 font-medium">Last 7 days (minutes)</h2>

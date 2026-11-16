@@ -16,6 +16,7 @@ model User {
   sessions    ScrollSession[]
   sites     TrackedSites[]
   dailyUsage    DailyUsage[]
+  moods     MoodCheckIn[]
 }
 
 model ScrollSession {
@@ -51,4 +52,17 @@ model DailyUsage {
    scrollPx   Int   @default(0)
 
    @@unique([userId, domain, date])
+}
+
+model MoodCheckIn {
+   id    String    @id @default(cuid())
+   userId    String
+   user    User    @relation(fields: [userId], references: [id])
+   date   DateTime    @db.Date
+   mood   Int
+   note   String?
+   createdAt   DateTime    @default(now())
+   updatedAt   DateTime    @updatedAt
+
+   @@unique([userId, date])
 }

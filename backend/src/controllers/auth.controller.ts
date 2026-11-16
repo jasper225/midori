@@ -41,10 +41,17 @@ export const register = async (req: Request, res: Response) => {
 const JWT_SECRET = process.env.JWT_SECRET;
 if (!JWT_SECRET) throw new Error("JWT_SECRET is not set");
 
-const cookieOptions = {
+// Secure is always on: browsers treat http://localhost as a secure context,
+// so the cookie still works in local dev while never going over plain HTTP elsewhere.
+const baseCookieOptions = {
   httpOnly: true,
+  secure: true,
   sameSite: "lax" as const,
-  secure: process.env.NODE_ENV === "production",
+  path: "/",
+};
+
+const cookieOptions = {
+  ...baseCookieOptions,
   maxAge: 7 * 24 * 60 * 60 * 1000,
 };
 
@@ -110,7 +117,7 @@ export const extensionLogin = async (req: Request, res: Response) => {
 
 export const logout = async (_req: Request, res: Response) => {
   try {
-    res.clearCookie("token", { httpOnly: true, sameSite: true, secure: cookieOptions.secure });
+    res.clearCookie("token", baseCookieOptions);
     return res.status(200).json({ message: "Logged out successfully"})
   } catch (err) {
     console.error(err);

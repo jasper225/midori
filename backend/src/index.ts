@@ -6,6 +6,7 @@ import authRoutes from "./routes/auth.routes.js";
 import sessionRoutes from "./routes/scrollSession.routes.js";
 import siteRoutes from "./routes/trackedSites.routes.js";
 import usageRoutes from "./routes/dailyUsage.routes.js";
+import moodRoutes from "./routes/mood.routes.js";
 
 const app = express();
 
@@ -17,6 +18,7 @@ app.use("/auth", authRoutes);
 app.use("/sessions", sessionRoutes);
 app.use("/sites", siteRoutes);
 app.use("/usage", usageRoutes);
+app.use("/mood", moodRoutes);
 
 app.get("/health", (_, res) => res.json({ ok: true }));
 

@@ -54,7 +54,7 @@ $("loginBtn").addEventListener("click", async () => {
 });
 
 $("logoutBtn").addEventListener("click", async () => {
-  await chrome.storage.local.remove(["token", "email", "sites", "pending", "current"]);
+  await chrome.storage.local.remove(["token", "email", "sites", "pending", "pendingScroll", "current", "totals"]);
   render();
 });
 
